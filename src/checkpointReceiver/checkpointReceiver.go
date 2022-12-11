@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	cacheFile = "../cache.json"
+	cacheFile = "../triggers.json"
 )
 
 type Response struct {
@@ -20,7 +20,7 @@ type Response struct {
 func GetCheckpoints() *Response {
 	if HasCacheHit() {
 		fmt.Println("Cache hit, serving data from cache")
-		data, err := GetDataFromCache()
+		data, err := GetDataFromFile()
 		if err != nil {
 			panic(err)
 		}
@@ -44,7 +44,7 @@ func GetCheckpoints() *Response {
 	var s = new(Response)
 	err2 := json.Unmarshal(body, &s)
 	if err2 != nil {
-		fmt.Println("Error reading response from Sun position API")
+		fmt.Println("Error reading response from Triggers API")
 		fmt.Println(err2)
 	}
 	SaveDataToFile(s)
@@ -57,7 +57,7 @@ func SaveDataToFile(position *Response) {
 	_ = os.WriteFile(cacheFile, file, 0644)
 }
 
-func GetDataFromCache() (*Response, error) {
+func GetDataFromFile() (*Response, error) {
 	file, readErr := os.ReadFile(cacheFile)
 	if readErr != nil {
 		return nil, readErr
@@ -74,7 +74,7 @@ func GetDataFromCache() (*Response, error) {
 
 func HasCacheHit() bool {
 	now := time.Now()
-	data, err := GetDataFromCache()
+	data, err := GetDataFromFile()
 	if err != nil {
 		return false
 	}

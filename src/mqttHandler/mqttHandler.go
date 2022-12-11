@@ -61,6 +61,7 @@ func PublishMessage(m string) {
 	if os.Getenv("SHOULD_TRIGGER_ALEXA") == "false" {
 		fmt.Println("Alexa trigger not send to topic: " + TOPIC)
 		fmt.Println("Payload: " + m)
+		client.Disconnect(1000)
 		return
 	}
 
