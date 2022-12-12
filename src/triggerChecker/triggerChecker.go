@@ -1,22 +1,27 @@
 package triggerChecker
 
 import (
-	"encoding/json"
-	"os"
+	"sort"
 	"time"
 
 	"raspberrypi.local/cronTrigger/checkpointReceiver"
 )
 
 const (
-	cacheFile = "../alreadySentTriggers.json"
+	CheckFrequencyDurationString = "10m"
 )
 
-type AlreadySentTriggers map[string]bool
+func ShouldTriggerLight(now time.Time, checkpoints *checkpointReceiver.Response) bool {
+	sort.Strings(checkpoints.Checkpoints)
 
-func ShouldTriggerLight(alreadySentTriggers AlreadySentTriggers, now time.Time, checkpoints *checkpointReceiver.Response) bool {
 	for _, element := range checkpoints.Checkpoints {
-		if alreadySentTriggers[element] != true {
+		t, _ := time.Parse(time.UnixDate, element)
+		diff := now.Sub(t).Minutes()
+		if diff < 0 {
+			continue
+		}
+
+		if diff == 0 || diff <= getFrequencyDuration().Minutes() {
 			return true
 		}
 	}
@@ -24,29 +29,11 @@ func ShouldTriggerLight(alreadySentTriggers AlreadySentTriggers, now time.Time, 
 	return false
 }
 
-func SaveDataToFile(position *AlreadySentTriggers) {
-	file, _ := json.MarshalIndent(position, "", " ")
-	_ = os.WriteFile(cacheFile, file, 0644)
-}
-
-func GetDataFromFile() (*AlreadySentTriggers, error) {
-	file, readErr := os.ReadFile(cacheFile)
-	if readErr != nil {
-		return nil, readErr
-	}
-
-	var result *AlreadySentTriggers
-	err := json.Unmarshal([]byte(file), &result)
+func getFrequencyDuration() time.Duration {
+	t, err := time.ParseDuration(CheckFrequencyDurationString)
 	if err != nil {
-		return nil, err
+		panic("Error parsing Check frequency duration string")
 	}
 
-	return result, nil
-}
-
-func RemoveDataFile(position *AlreadySentTriggers) {
-	err := os.Remove(cacheFile)
-	if err != nil {
-		panic(err)
-	}
+	return t
 }

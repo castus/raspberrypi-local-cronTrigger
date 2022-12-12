@@ -40,7 +40,6 @@ func GetCheckpoints() *Response {
 		fmt.Printf("Reading body failed: %s", err)
 		panic("Reading body failed")
 	}
-	fmt.Println(string(body))
 	var s = new(Response)
 	err2 := json.Unmarshal(body, &s)
 	if err2 != nil {

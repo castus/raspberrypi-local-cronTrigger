@@ -1,4 +1,4 @@
 .env.secrets
 .idea
 .vscode
-cache.json
+triggers.json
