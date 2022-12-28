@@ -24,6 +24,8 @@ func main() {
 	automaticallyRefreshDataWhenDayStarts()
 	periodicallyCheckForLightTrigger()
 
+	fmt.Println("Cron Trigger is up and running")
+
 	sig := make(chan os.Signal)
 	signal.Notify(sig, os.Interrupt, os.Kill)
 	<-sig
