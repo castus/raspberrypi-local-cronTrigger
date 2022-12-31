@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"time"
@@ -24,7 +25,7 @@ func main() {
 	automaticallyRefreshDataWhenDayStarts()
 	periodicallyCheckForLightTrigger()
 
-	fmt.Println("Cron Trigger is up and running")
+	log.Println("Cron Trigger is up and running")
 
 	sig := make(chan os.Signal)
 	signal.Notify(sig, os.Interrupt, os.Kill)
@@ -46,14 +47,19 @@ func automaticallyRefreshDataWhenDayStarts() {
 func periodicallyCheckForLightTrigger() {
 	c := cron.New()
 	_, err := c.AddFunc("@every "+triggerChecker.CheckFrequencyDurationString, func() {
-		fmt.Println("Executing CheckForLightTrigger function")
+		log.Println("Executing CheckForLightTrigger function")
 		checkpoints := checkpointReceiver.GetCheckpoints()
-		now := time.Now()
+		l, _ := time.LoadLocation("Europe/Warsaw")
+		now := time.Now().In(l)
+		log.Println("Get checkpoints")
+		log.Println(checkpoints)
+		log.Println("Current time is")
+		log.Println(now)
 		if triggerChecker.ShouldTriggerLight(now, checkpoints) {
-			fmt.Println("Current time: " + now.String() + ", triggering lightController")
+			log.Println("Current time: " + now.String() + ", triggering lightController")
 			go mqttHandler.PublishMessage(getMessage())
 		} else {
-			fmt.Println("Current time: " + now.String() + ", no need to trigger lightController")
+			log.Println("Current time: " + now.String() + ", no need to trigger lightController")
 		}
 	})
 	if err != nil {

@@ -56,11 +56,11 @@ func PublishMessage(m string) {
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
-	fmt.Println("Connection is up")
+	fmt.Println("MQTT connection from cronTrigger is up")
 
 	if os.Getenv("SHOULD_TRIGGER_ALEXA") == "false" {
-		fmt.Println("Alexa trigger not send to topic: " + TOPIC)
-		fmt.Println("Payload: " + m)
+		log.Println("Dev mode: Alexa trigger not send, but invoked, to topic: " + TOPIC)
+		log.Println("Dev mode: Payload: " + m)
 		client.Disconnect(1000)
 		return
 	}
@@ -68,11 +68,11 @@ func PublishMessage(m string) {
 	t := client.Publish(TOPIC, QOS, false, m)
 	_ = t.Wait()
 	if t.Error() != nil {
-		fmt.Printf("ERROR Publishing: %s\n", t.Error())
+		log.Printf("ERROR Publishing: %s\n", t.Error())
 		panic(t.Error())
 	} else {
-		fmt.Println("Published to: ", TOPIC)
+		log.Println("cronTrigger published mqtt's request to trigger lightController to topic: ", TOPIC)
 	}
 	client.Disconnect(1000)
-	fmt.Println("Client disconnected")
+	log.Println("Client disconnected")
 }

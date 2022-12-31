@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -18,21 +19,20 @@ type Response struct {
 }
 
 func GetCheckpoints() *Response {
-	if HasCacheHit() {
-		fmt.Println("Cache hit, serving data from cache")
-		data, err := GetDataFromFile()
-		if err != nil {
-			panic(err)
-		}
-		return data
-	}
+	//if HasCacheHit() {
+	//	fmt.Println("Cache hit, serving data from cache")
+	//	data, err := GetDataFromFile()
+	//	if err != nil {
+	//		panic(err)
+	//	}
+	//	return data
+	//}
 
 	URL := fmt.Sprintf("%s", os.Getenv("TRIGGER_API_SERVER_ADDRESS"))
 	resp, err := http.Get(URL)
 
 	if err != nil {
-		fmt.Printf("Request Failed: %s", err)
-		panic("Request Failed")
+		log.Fatalf("Request for checkpoints failed: %s\n", err)
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -43,8 +43,8 @@ func GetCheckpoints() *Response {
 	var s = new(Response)
 	err2 := json.Unmarshal(body, &s)
 	if err2 != nil {
-		fmt.Println("Error reading response from Triggers API")
-		fmt.Println(err2)
+		log.Printf("Error reading response from Triggers API")
+		log.Fatalln(err2)
 	}
 	SaveDataToFile(s)
 

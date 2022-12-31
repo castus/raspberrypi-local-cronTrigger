@@ -64,6 +64,14 @@ func TestShouldNotTriggerWhenDifferenceIsGreaterThenTheFrequency(t *testing.T) {
 	}
 }
 
+func TestShouldNotTriggerWhenNextDay(t *testing.T) {
+	checkpoints := getCheckpoints()
+
+	if triggerChecker.ShouldTriggerLight(getTime("Sun Dec 12 00:00:01 CET 2022"), checkpoints) == true {
+		t.Fail()
+	}
+}
+
 func getTime(dateString string) time.Time {
 	t, _ := time.Parse(time.UnixDate, dateString)
 	return t
@@ -71,15 +79,15 @@ func getTime(dateString string) time.Time {
 
 func getCheckpoints() *checkpointReceiver.Response {
 	var checkpoints = []string{
+		"Sun Dec 11 03:00:00 CET 2022",
 		"Sun Dec 11 06:48:25 CET 2022",
 		"Sun Dec 11 07:48:25 CET 2022",
-		"Sun Dec 11 18:58:01 CET 2022",
-		"Sun Dec 11 17:58:01 CET 2022",
-		"Sun Dec 11 13:00:00 CET 2022",
 		"Sun Dec 11 11:00:00 CET 2022",
+		"Sun Dec 11 13:00:00 CET 2022",
+		"Sun Dec 11 17:58:01 CET 2022",
+		"Sun Dec 11 18:58:01 CET 2022",
 		"Sun Dec 11 22:00:00 CET 2022",
 		"Sun Dec 11 23:00:00 CET 2022",
-		"Sun Dec 11 03:00:00 CET 2022",
 	}
 
 	var response = &checkpointReceiver.Response{
