@@ -1,12 +1,13 @@
 FROM --platform=$BUILDPLATFORM golang:1.20 AS builder
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
+ARG TARGETARCH
 RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
 
 WORKDIR /data
 COPY ./src /data
 RUN sh go-init.sh
-RUN go build -o cron-trigger
+RUN GOOS=linux GOARCH=$TARGETARCH go build -o cron-trigger
 
 FROM --platform=$BUILDPLATFORM ubuntu:kinetic
 ARG TARGETPLATFORM
