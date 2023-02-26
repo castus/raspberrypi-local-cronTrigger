@@ -28,15 +28,16 @@ func periodicallyCheckForLightTrigger() {
 	c := cron.New()
 	_, err := c.AddFunc("@every "+triggerChecker.CheckFrequencyDurationString, func() {
 		checkpoints := checkpointReceiver.GetCheckpoints()
+		log.Printf("type=debug croncheck=true")
 		l, _ := time.LoadLocation("Europe/Warsaw")
 		now := time.Now().In(l)
 		log.Printf("type=debug msg=\"Get checkpoints\" checkpoints=\"%s\"\n", checkpoints)
 		log.Printf("type=debug msg=\"Current time is: %s\"\n", now.String())
 		if triggerChecker.ShouldTriggerLight(now, checkpoints) {
-			log.Printf("type=debug msg=\"Reached a checkpoint, triggerring lightController, time: %s\"\n", now.String())
+			log.Printf("type=debug crontrigger=true msg=\"Reached a checkpoint, triggerring lightController, time: %s\"\n", now.String())
 			go mqttHandler.PublishMessage(getMessage())
 		} else {
-			log.Printf("type=info msg=\"No need to trigger lightController, time: %s\"\n", now.String())
+			log.Printf("type=debug crontrigger=false msg=\"No need to trigger lightController, time: %s\"\n", now.String())
 		}
 	})
 	if err != nil {
